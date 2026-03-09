@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Founder Skills Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #2a2a3a;
+    --accent: #c8ff57;
+    --accent2: #57c8ff;
+    --accent3: #ff7557;
+    --text: #e8e8f0;
+    --muted: #6a6a8a;
+    --glow: rgba(200,255,87,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Background grid */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(200,255,87,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,255,87,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none; z-index:0;
+  }
+
+  .app { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:2rem 1.5rem; }
+
+  /* Header */
+  header { text-align:center; margin-bottom:3rem; padding:2rem 0; }
+  .vault-label {
+    font-family:'Syne', sans-serif;
+    font-size:0.7rem; font-weight:600; letter-spacing:0.3em;
+    color:var(--accent); text-transform:uppercase;
+    margin-bottom:1rem;
+    display:flex; align-items:center; justify-content:center; gap:0.75rem;
+  }
+  .vault-label::before, .vault-label::after {
+    content:''; width:40px; height:1px; background:var(--accent); opacity:0.5;
+  }
+  header h1 {
+    font-family:'Syne', sans-serif;
+    font-size:clamp(2.2rem, 5vw, 3.5rem);
+    font-weight:800; line-height:1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text; margin-bottom:1rem;
+  }
+  header p {
+    color:var(--muted); font-size:0.85rem; letter-spacing:0.05em;
+    font-style:italic;
+  }
+
+  /* Tool Grid */
+  .tools-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:1px; background:var(--border);
+    border:1px solid var(--border); border-radius:16px; overflow:hidden;
+    margin-bottom:2rem;
+  }
+  .tool-card {
+    background:var(--card);
+    padding:1.5rem;
+    cursor:pointer;
+    transition:all 0.2s ease;
+    display:flex; flex-direction:column; gap:0.5rem;
+    position:relative; overflow:hidden;
+  }
+  .tool-card::before {
+    content:''; position:absolute; inset:0;
+    background:var(--glow); opacity:0;
+    transition:opacity 0.2s;
+  }
+  .tool-card:hover::before { opacity:1; }
+  .tool-card:hover { background:#1a1a26; }
+  .tool-card.active { background:#1c1c2e; }
+  .tool-card.active::after {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:var(--accent);
+  }
+  .tool-card:nth-child(1) { border-radius:0; }
+
+  .tool-icon { font-size:1.4rem; margin-bottom:0.25rem; }
+  .tool-name {
+    font-family:'Syne', sans-serif; font-weight:700;
+    font-size:0.95rem; color:var(--text); line-height:1.2;
+  }
+  .tool-tag {
+    font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--muted); font-weight:400;
+  }
+  .tool-card.active .tool-name { color:var(--accent); }
+
+  /* Workspace */
+  .workspace {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px; overflow:hidden;
+    min-height:500px; display:flex; flex-direction:column;
+  }
+  .workspace-header {
+    padding:1.25rem 1.5rem;
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:1rem;
+    background:var(--card);
+  }
+  .ws-icon { font-size:1.5rem; }
+  .ws-title {
+    font-family:'Syne', sans-serif; font-weight:700; font-size:1.1rem;
+    color:var(--text); flex:1;
+  }
+  .ws-badge {
+    font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase;
+    background:rgba(200,255,87,0.1); color:var(--accent);
+    border:1px solid rgba(200,255,87,0.3);
+    padding:0.3rem 0.7rem; border-radius:20px;
+  }
+
+  .workspace-body { padding:1.5rem; flex:1; display:flex; flex-direction:column; gap:1rem; }
+
+  .field-label {
+    font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:0.5rem; display:block;
+    font-weight:400;
+  }
+  .field-group { margin-bottom:0.5rem; }
+
+  input[type=text], textarea, select {
+    width:100%; background:#0d0d16;
+    border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-family:'DM Mono', monospace;
+    font-size:0.85rem; padding:0.75rem 1rem;
+    outline:none; resize:vertical;
+    transition:border-color 0.2s;
+  }
+  input[type=text]:focus, textarea:focus, select:focus {
+    border-color:rgba(200,255,87,0.4);
+    box-shadow:0 0 0 3px rgba(200,255,87,0.07);
+  }
+  textarea { min-height:100px; }
+  select option { background:#0d0d16; }
+
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+  .run-btn {
+    background:var(--accent); color:#0a0a0f;
+    border:none; border-radius:8px;
+    padding:0.9rem 2rem;
+    font-family:'Syne', sans-serif; font-weight:700;
+    font-size:0.9rem; letter-spacing:0.05em;
+    cursor:pointer; width:100%;
+    transition:all 0.2s; margin-top:0.5rem;
+    display:flex; align-items:center; justify-content:center; gap:0.5rem;
+  }
+  .run-btn:hover { background:#d4ff70; transform:translateY(-1px); box-shadow:0 8px 24px rgba(200,255,87,0.25); }
+  .run-btn:active { transform:translateY(0); }
+  .run-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+  /* Output */
+  .output-area {
+    background:#0d0d16; border:1px solid var(--border); border-radius:8px;
+    padding:1.25rem; min-height:140px;
+    font-size:0.82rem; line-height:1.8;
+    color:var(--text); white-space:pre-wrap; word-wrap:break-word;
+    flex:1; position:relative; overflow-y:auto; max-height:380px;
+  }
+  .output-placeholder {
+    color:var(--muted); font-style:italic; font-size:0.8rem;
+  }
+  .output-area.loading::after {
+    content:''; display:inline-block; width:8px; height:16px;
+    background:var(--accent); margin-left:2px;
+    animation:blink 0.8s step-end infinite;
+    vertical-align:middle;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .copy-btn {
+    position:absolute; top:0.75rem; right:0.75rem;
+    background:rgba(200,255,87,0.1); border:1px solid rgba(200,255,87,0.25);
+    color:var(--accent); border-radius:6px; padding:0.3rem 0.7rem;
+    font-size:0.65rem; font-family:'DM Mono',monospace; letter-spacing:0.1em;
+    cursor:pointer; display:none; text-transform:uppercase;
+    transition:all 0.15s;
+  }
+  .copy-btn:hover { background:rgba(200,255,87,0.2); }
+  .output-area:not(.loading):not(:empty) .copy-btn { display:block; }
+
+  /* Spinner */
+  .spinner {
+    display:inline-block; width:14px; height:14px;
+    border:2px solid rgba(10,10,15,0.3); border-top-color:#0a0a0f;
+    border-radius:50%; animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* Welcome state */
+  .welcome {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:400px; text-align:center; gap:1rem; padding:2rem;
+  }
+  .welcome-icon { font-size:3rem; opacity:0.4; }
+  .welcome h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--muted); font-size:1rem; }
+  .welcome p { color:var(--muted); font-size:0.78rem; letter-spacing:0.05em; font-style:italic; max-width:300px; }
+
+  @media(max-width:600px){
+    .tools-grid { grid-template-columns:1fr; }
+    .row { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="vault-label">AI-Powered</div>
+    <h1>Founder Skills Vault</h1>
+    <p>7 tools to grow your audience &amp; close more deals</p>
+  </header>
+
+  <div class="tools-grid" id="toolsGrid"></div>
+
+  <div class="workspace" id="workspace">
+    <div class="welcome">
+      <div class="welcome-icon">⚡</div>
+      <h3>Select a tool to get started</h3>
+      <p>Choose any of the 7 founder tools above to launch the workspace</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOOLS = [
+  {
+    id:'viral',
+    icon:'🔥',
+    name:'Viral Content Generator',
+    tag:'Content · Growth',
+    desc:'Generate high-engagement posts tailored to your niche and voice.',
+    fields:[
+      {id:'niche', label:'Your Niche / Industry', type:'text', placeholder:'e.g. SaaS founder, ecommerce, B2B sales...'},
+      {id:'topic', label:'Content Topic or Hook', type:'text', placeholder:'e.g. Cold outreach mistakes I made as a founder'},
+      {id:'platform', label:'Platform', type:'select', options:['LinkedIn','Twitter / X','Instagram','Newsletter']},
+      {id:'tone', label:'Tone', type:'select', options:['Authentic & Raw','Bold & Contrarian','Educational','Storytelling','Data-driven']}
+    ],
+    prompt:(f)=>`You are a viral content strategist for founders. Generate 3 viral ${f.platform} posts about "${f.topic}" for a founder in the "${f.niche}" space. Tone: ${f.tone}. Each post should have a strong hook, value, and a clear CTA. Number each post clearly. Make them punchy, scroll-stopping, and real — not generic.`
+  },
+  {
+    id:'leadmagnet',
+    icon:'🧲',
+    name:'Lead Magnet Idea Generator',
+    tag:'Leads · Conversion',
+    desc:'Brainstorm irresistible lead magnets your audience will love.',
+    fields:[
+      {id:'audience', label:'Target Audience', type:'text', placeholder:'e.g. early-stage SaaS founders'},
+      {id:'problem', label:'Main Problem They Have', type:'text', placeholder:'e.g. can\'t convert free trial users'},
+      {id:'format', label:'Preferred Format', type:'select', options:['Any','PDF Checklist','Email Course','Template','Webinar','Video','Calculator']}
+    ],
+    prompt:(f)=>`You are a lead magnet strategist. Generate 5 specific, high-converting lead magnet ideas for "${f.audience}" who struggle with "${f.problem}". Format preference: ${f.format}. For each idea, give: the title, a 1-line description of what's inside, and why it converts. Make them ultra-specific and valuable — not generic.`
+  },
+  {
+    id:'pillars',
+    icon:'🏛️',
+    name:'Content Pillar Generator',
+    tag:'Strategy · Brand',
+    desc:'Build your content strategy around 5 core pillars.',
+    fields:[
+      {id:'brand', label:'Your Brand / Business', type:'text', placeholder:'e.g. I help B2B founders close enterprise deals'},
+      {id:'audience2', label:'Target Audience', type:'text', placeholder:'e.g. Revenue leaders at mid-market companies'},
+      {id:'goal', label:'Primary Content Goal', type:'select', options:['Build Trust & Authority','Drive Inbound Leads','Grow Email List','Recruit Talent','Attract Investors']}
+    ],
+    prompt:(f)=>`You are a personal brand strategist. Create 5 content pillars for: "${f.brand}" targeting "${f.audience2}". Goal: ${f.goal}. For each pillar: 1) Name it 2) Explain the theme 3) Give 3 specific post ideas with hooks. Make the pillars distinct, strategic, and aligned with the goal.`
+  },
+  {
+    id:'linkedin',
+    icon:'🔍',
+    name:'LinkedIn Content Analyzer',
+    tag:'Analytics · LinkedIn',
+    desc:'Analyze your LinkedIn post and get improvement suggestions.',
+    fields:[
+      {id:'post', label:'Paste Your LinkedIn Post', type:'textarea', placeholder:'Paste your LinkedIn post here...'},
+      {id:'goal2', label:'Post Goal', type:'select', options:['More Impressions','More Comments','More DMs','More Followers','More Profile Visits']}
+    ],
+    prompt:(f)=>`You are a LinkedIn content expert. Analyze this LinkedIn post and provide specific, actionable feedback:\n\n"${f.post}"\n\nPost Goal: ${f.goal2}\n\nProvide: 1) Overall Score (1-10) with reasoning 2) Hook Analysis — is it scroll-stopping? 3) Structure & Readability 4) CTA Effectiveness 5) 3 specific rewrites to improve it for the goal. Be direct and specific.`
+  },
+  {
+    id:'xconvert',
+    icon:'🔄',
+    name:'LinkedIn to X Converter',
+    tag:'Repurpose · Twitter',
+    desc:'Convert your LinkedIn posts into punchy X (Twitter) threads.',
+    fields:[
+      {id:'lipost', label:'Your LinkedIn Post', type:'textarea', placeholder:'Paste your LinkedIn post here...'},
+      {id:'style', label:'Thread Style', type:'select', options:['Educational Thread','Contrarian Take','Storytelling','List-based','Question-led']}
+    ],
+    prompt:(f)=>`You are a viral Twitter/X content expert. Convert this LinkedIn post into a high-engagement X thread. Style: ${f.style}.\n\nLinkedIn Post:\n"${f.lipost}"\n\nCreate a 5-8 tweet thread. Rules: Tweet 1 must be a killer hook. Each tweet must be under 280 chars. End with a strong CTA tweet. Number each tweet (1/, 2/ etc). Keep it punchy — no fluff.`
+  },
+  {
+    id:'warmdm',
+    icon:'💬',
+    name:'Warm DM Strategist',
+    tag:'Outreach · Sales',
+    desc:'Write personalized DMs that actually get replies.',
+    fields:[
+      {id:'sender', label:'Your Role / Offer', type:'text', placeholder:'e.g. I help SaaS companies reduce churn'},
+      {id:'receiver', label:'Who You\'re DMing', type:'text', placeholder:'e.g. SaaS founder who posted about churn issues'},
+      {id:'context', label:'Context / Reason to Reach Out', type:'text', placeholder:'e.g. They posted about struggling to retain users after trial'},
+      {id:'dmplatform', label:'Platform', type:'select', options:['LinkedIn','Twitter / X','Instagram','Email']}
+    ],
+    prompt:(f)=>`You are an outbound sales expert specializing in warm DMs. Write 3 different warm DM variations for ${f.dmplatform}.\n\nSender: ${f.sender}\nRecipient: ${f.receiver}\nContext: ${f.context}\n\nEach DM should: reference something specific (not generic), provide value or insight, have zero pressure, be under 150 words, end with a soft open question. Label each variation (e.g. "DM Option 1 — Empathy-led").`
+  },
+  {
+    id:'qualify',
+    icon:'🎯',
+    name:'Lead Qualifier',
+    tag:'Sales · Pipeline',
+    desc:'Score and qualify leads based on your ideal customer profile.',
+    fields:[
+      {id:'icp', label:'Your Ideal Customer Profile', type:'textarea', placeholder:'e.g. B2B SaaS companies, 10-100 employees, $1M+ ARR, struggling with churn...'},
+      {id:'leadinfo', label:'Lead Info / Notes', type:'textarea', placeholder:'e.g. Company name: Acme Corp. They sell HR software. 50 employees. The founder messaged asking about our product...'},
+      {id:'stage', label:'Sales Stage', type:'select', options:['Cold Lead','Inbound Inquiry','Discovery Call Done','Proposal Sent']}
+    ],
+    prompt:(f)=>`You are an expert sales strategist. Qualify this lead against the ICP.\n\nICP: ${f.icp}\n\nLead Info: ${f.leadinfo}\n\nSales Stage: ${f.stage}\n\nProvide: 1) ICP Match Score (1-10) with breakdown 2) Green Flags (bulleted) 3) Red Flags / Gaps (bulleted) 4) Recommended Next Action 5) Discovery questions to ask them. Be sharp and honest — don't sugarcoat weak fits.`
+  }
+];
+
+let activeTool = null;
+let outputEl = null;
+
+function buildGrid() {
+  const grid = document.getElementById('toolsGrid');
+  grid.innerHTML = TOOLS.map((t,i) => `
+    <div class="tool-card" data-id="${t.id}" onclick="selectTool('${t.id}')">
+      <div class="tool-icon">${t.icon}</div>
+      <div class="tool-name">${t.name}</div>
+      <div class="tool-tag">${t.tag}</div>
+    </div>
+  `).join('');
+}
+
+function selectTool(id) {
+  activeTool = TOOLS.find(t=>t.id===id);
+  document.querySelectorAll('.tool-card').forEach(c=>{
+    c.classList.toggle('active', c.dataset.id===id);
+  });
+  renderWorkspace();
+}
+
+function renderWorkspace() {
+  const t = activeTool;
+  const ws = document.getElementById('workspace');
+  ws.innerHTML = `
+    <div class="workspace-header">
+      <div class="ws-icon">${t.icon}</div>
+      <div class="ws-title">${t.name}</div>
+      <div class="ws-badge">AI Powered</div>
+    </div>
+    <div class="workspace-body">
+      ${buildFields(t.fields)}
+      <button class="run-btn" id="runBtn" onclick="runTool()">
+        <span>Generate</span> <span>→</span>
+      </button>
+      <div class="field-group">
+        <label class="field-label">Output</label>
+        <div class="output-area" id="outputArea">
+          <span class="output-placeholder">Your results will appear here...</span>
+        </div>
+      </div>
+    </div>
+  `;
+  outputEl = document.getElementById('outputArea');
+}
+
+function buildFields(fields) {
+  let html = '';
+  // Group into rows of 2 where possible for select fields
+  let i=0;
+  while(i<fields.length){
+    const f = fields[i];
+    if(f.type==='textarea'){
+      html += `<div class="field-group">${fieldHtml(f)}</div>`;
+      i++;
+    } else if(i+1<fields.length && fields[i+1].type!=='textarea'){
+      html += `<div class="row"><div class="field-group">${fieldHtml(f)}</div><div class="field-group">${fieldHtml(fields[i+1])}</div></div>`;
+      i+=2;
+    } else {
+      html += `<div class="field-group">${fieldHtml(f)}</div>`;
+      i++;
+    }
+  }
+  return html;
+}
+
+function fieldHtml(f){
+  const label = `<label class="field-label" for="${f.id}">${f.label}</label>`;
+  if(f.type==='select'){
+    return label+`<select id="${f.id}">${f.options.map(o=>`<option>${o}</option>`).join('')}</select>`;
+  } else if(f.type==='textarea'){
+    return label+`<textarea id="${f.id}" placeholder="${f.placeholder||''}"></textarea>`;
+  } else {
+    return label+`<input type="text" id="${f.id}" placeholder="${f.placeholder||''}">`;
+  }
+}
+
+async function runTool(){
+  const t = activeTool;
+  const btn = document.getElementById('runBtn');
+  
+  // Collect field values
+  const vals = {};
+  let missing = false;
+  t.fields.forEach(f=>{
+    const el = document.getElementById(f.id);
+    vals[f.id] = el ? el.value.trim() : '';
+    if(!vals[f.id] && f.type!=='select') missing=true;
+  });
+  if(missing){ 
+    outputEl.innerHTML='<span style="color:#ff7557">⚠ Please fill in all fields before generating.</span>';
+    return; 
+  }
+
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span><span>Generating...</span>';
+  outputEl.textContent='';
+  outputEl.classList.add('loading');
+
+  const prompt = t.prompt(vals);
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.map(b=>b.text||'').join('\n') || 'No response received.';
+    outputEl.classList.remove('loading');
+    outputEl.innerHTML = `<button class="copy-btn" onclick="copyOutput()">Copy</button>${escapeHtml(text)}`;
+  } catch(e){
+    outputEl.classList.remove('loading');
+    outputEl.innerHTML=`<span style="color:#ff7557">Error: ${e.message}</span>`;
+  }
+  btn.disabled=false;
+  btn.innerHTML='<span>Generate</span><span>→</span>';
+}
+
+function copyOutput(){
+  const text = outputEl.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = outputEl.querySelector('.copy-btn');
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',1500);
+  });
+}
+
+function escapeHtml(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+buildGrid();
+</script>
+</body>
+</html>
